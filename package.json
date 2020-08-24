@@ -20,7 +20,8 @@
     "lodash": "^4.17.15",
     "path-to-regexp": "1.x",
     "styled-components": "^5.1.1",
-    "umi-plugin-locale": "^2.11.4"
+    "umi-plugin-locale": "^2.11.4",
+    "umi-types": "^0.5.14"
   },
   "devDependencies": {
     "@umijs/plugin-initial-state": "^1.0.1",

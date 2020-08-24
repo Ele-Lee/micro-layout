@@ -11,12 +11,16 @@ import _omit from 'lodash/omit';
 const { Content } = Layout;
 const HeaderHeight = 60;
 
-interface BaseLayoutProps extends IRouteComponentProps {
+export interface BaseLayoutProps {
   routes: any[];
   apps: any[];
   menuLogo: string;
   menuTitle: string;
 }
+
+export interface $BaseLayoutProps
+  extends IRouteComponentProps,
+    BaseLayoutProps {}
 
 function BaseLayout({
   children,
@@ -28,7 +32,7 @@ function BaseLayout({
   apps = [],
   menuLogo = 'https://static.guorou.net/guorou-portal-logo.png',
   menuTitle = '果肉运营后台',
-}: BaseLayoutProps) {
+}: $BaseLayoutProps) {
   const curPathname = location.pathname;
   const [menuItemKey, setMenuItemKey] = useState(curPathname);
   const [activeSubMenu, setActiveSubMenu] = useState<string | undefined>(
