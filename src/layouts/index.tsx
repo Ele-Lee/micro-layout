@@ -12,10 +12,10 @@ const { Content } = Layout;
 const HeaderHeight = 60;
 
 export interface BaseLayoutProps {
-  routes: any[];
-  apps: any[];
-  menuLogo: string;
-  menuTitle: string;
+  routes?: any[];
+  apps?: any[];
+  menuLogo?: string;
+  menuTitle?: string;
 }
 
 export interface $BaseLayoutProps

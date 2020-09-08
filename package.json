@@ -1,34 +1,45 @@
 {
-  "name": "micro-layout",
+  "name": "@umijs/micro-layout",
   "version": "0.0.1-beta0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "./lib/types/index.d.ts",
+  "files": [
+    "lib",
+    "src"
+  ],
   "scripts": {
+    "start": "cross-env APP_ROOT=$PWD/example umi dev",
+    "build": "father-build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "elelee",
   "license": "ISC",
   "peerDependencies": {
-    "@umijs/plugin-initial-state": "^1.0.1",
-    "@umijs/plugin-model": "^1.0.1",
+    "@ant-design/icons": "^4.0.0",
+    "@ant-design/pro-layout": "^5.0.0",
+    "@umijs/plugin-initial-state": "2.x",
+    "@umijs/plugin-locale": "0.x",
+    "@umijs/plugin-model": "2.x",
+    "lodash": "^4.17.15",
     "react": "^16.12.0",
-    "umi": "3.2.14"
+    "umi": "^3.2.16"
   },
   "dependencies": {
+    "@umijs/route-utils": "^1.0.7",
     "@ant-design/pro-layout": "^4.11.3",
-    "@types/styled-components": "5.1.2",
-    "lodash": "^4.17.15",
     "path-to-regexp": "1.x",
     "styled-components": "^5.1.1",
-    "umi-plugin-locale": "^2.11.4",
-    "umi-types": "^0.5.14"
+    "umi": "^3.2.16"
   },
   "devDependencies": {
-    "@umijs/plugin-initial-state": "^1.0.1",
-    "@umijs/plugin-model": "^1.0.1",
+    "@umijs/plugin-initial-state": "2.x",
+    "@umijs/plugin-locale": "0.x",
+    "@umijs/route-utils": "^1.0.7",
+    "@umijs/plugin-model": "2.x",
+    "@types/styled-components": "5.1.2",
     "antd": "4.5.4",
     "cross-env": "^6.0.3",
-    "father-build": "^1.8.0",
-    "umi": "3.2.14"
+    "father-build": "^1.8.0"
   }
 }
