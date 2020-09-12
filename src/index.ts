@@ -3,9 +3,18 @@ import { join } from 'path';
 import * as allIcons from '@ant-design/icons';
 import getLayoutContent from './utils/getLayoutContent';
 // import { LayoutConfig } from './types';
-import { readFileSync, writeFileSync, copyFileSync, statSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 
-const DIR_NAME = 'layout-layout';
+interface LayoutConfig {
+  name?: string;
+  logo?: string;
+  theme?: string;
+  locale?: any; // same with locale plugin
+  showBreadcrumb?: boolean; // TODO 面包屑功能暂不支持
+  layoutComponent?: Record<string, string>; // 自定义主题
+}
+
+const DIR_NAME = 'plugin-layout';
 
 export interface MenuDataItem {
   children?: MenuDataItem[];
@@ -20,16 +29,16 @@ export interface MenuDataItem {
   [key: string]: any;
 }
 
-// function haveProLayout() {
-//   try {
-//     require.resolve('@ant-design/pro-layout');
-//     return true;
-//   } catch (error) {
-//     console.log(error);
-//     console.error('@umijs/plugin-layout 需要安装 ProLayout 才可运行');
-//   }
-//   return false;
-// }
+function haveProLayout() {
+  try {
+    require.resolve('@ant-design/pro-layout');
+    return true;
+  } catch (error) {
+    console.log(error);
+    console.error('@umijs/plugin-layout 需要安装 ProLayout 才可运行');
+  }
+  return false;
+}
 
 function toHump(name: string) {
   return name.replace(/\-(\w)/g, function (all, letter) {
@@ -47,15 +56,15 @@ function formatter(data: MenuDataItem[]): string[] {
     if (item.menu) {
       item = { ...item, ...item.menu };
     }
-    if (item.icon && 0) {
+    if (item.icon) {
       const { icon } = item;
       const v4IconName = toHump(icon.replace(icon[0], icon[0].toUpperCase()));
-      // if (allIcons[icon]) {
-      //   icons.push(icon);
-      // }
-      // if (allIcons[`${v4IconName}Outlined`]) {
-      //   icons.push(`${v4IconName}Outlined`);
-      // }
+      if (allIcons[icon]) {
+        icons.push(icon);
+      }
+      if (allIcons[`${v4IconName}Outlined`]) {
+        icons.push(`${v4IconName}Outlined`);
+      }
     }
     const items = item.routes || item.children;
     if (items) {
@@ -67,8 +76,9 @@ function formatter(data: MenuDataItem[]): string[] {
 }
 
 export default (api: IApi) => {
+  console.log('%celelee test:', 'background:#000;color:#fff', 1);
   api.describe({
-    key: 'layout',
+    key: 'mlayout',
     config: {
       schema(joi) {
         return joi.object();
@@ -78,56 +88,13 @@ export default (api: IApi) => {
     enableBy: api.EnableBy.config,
   });
 
-  // api.addDepInfo(() => {
-  //   const pkg = require('../package.json');
-  //   return [
-  //     {
-  //       name: '@ant-design/pro-layout',
-  //       range:
-  //         api.pkg.dependencies?.['@ant-design/pro-layout'] ||
-  //         api.pkg.devDependencies?.['@ant-design/pro-layout'] ||
-  //         pkg.peerDependencies['@ant-design/pro-layout'],
-  //     },
-  //     {
-  //       name: '@umijs/route-utils',
-  //       range: pkg.dependencies['@umijs/route-utils'],
-  //     },
-  //     {
-  //       name: '@ant-design/icons',
-  //       range: pkg.peerDependencies['@ant-design/icons'],
-  //     },
-  //   ];
-  // });
-
-  let generatedOnce = false;
-  api.onGenerateFiles(() => {
-    if (generatedOnce) return;
-    generatedOnce = true;
-    const cwd = join(__dirname, '../src');
-    const files = utils.glob.sync('**/*', {
-      cwd,
-    });
-    const base = join(api.paths.absTmpPath!, 'plugin-layout', 'layout');
-    utils.mkdirp.sync(base);
-    files.forEach((file) => {
-      if (['index.ts', 'runtime.tsx.tpl'].includes(file)) return;
-      const source = join(cwd, file);
-      const target = join(base, file);
-      if (statSync(source).isDirectory()) {
-        utils.mkdirp.sync(target);
-      } else {
-        copyFileSync(source, target);
-      }
-    });
-  });
-
   api.modifyDefaultConfig((config) => {
     // @ts-ignore
     config.title = false;
     return config;
   });
 
-  let layoutOpts: any = {};
+  let layoutOpts: LayoutConfig = {};
 
   api.addRuntimePluginKey(() => ['layout']);
 
@@ -145,7 +112,12 @@ export default (api: IApi) => {
     // allow custom theme
     let layoutComponent = {
       // 如果 ProLayout 没有安装会提供一个报错和一个空的 layout 组件
-      PRO: './layout/layout/index.tsx',
+      PRO: utils.winPath(
+        join(
+          __dirname,
+          haveProLayout() ? './layout/index.js' : './layout/blankLayout.js',
+        ),
+      ),
     };
     if (layoutOpts.layoutComponent) {
       layoutComponent = Object.assign(
@@ -154,8 +126,9 @@ export default (api: IApi) => {
       );
     }
 
-    // const theme = (layoutOpts.theme && layoutOpts.theme.toUpperCase()) || 'PRO';
-    const currentLayoutComponentPath = layoutComponent['PRO'];
+    const theme = (layoutOpts.theme && layoutOpts.theme.toUpperCase()) || 'PRO';
+    const currentLayoutComponentPath =
+      layoutComponent[theme] || layoutComponent['PRO'];
 
     api.writeTmpFile({
       path: join(DIR_NAME, 'Layout.tsx'),
@@ -166,8 +139,7 @@ export default (api: IApi) => {
     const { userConfig } = api;
     const icons = formatter(userConfig.routes);
     let iconsString = icons.map(
-      (iconName) =>
-        `import ${iconName} from '@ant-design/icons/es/icons/${iconName}'`,
+      (iconName) => `import ${iconName} from '@ant-design/icons/${iconName}'`,
     );
     api.writeTmpFile({
       path: join(DIR_NAME, 'icons.ts'),
@@ -185,6 +157,12 @@ export default (api: IApi) => {
     });
   });
   api.modifyRoutes((routes) => {
+    console.log(
+      '%celelee test:',
+      'background:#000;color:#fff',
+      2,
+      join(api.paths.absTmpPath || '', DIR_NAME, 'Layout.tsx'),
+    );
     return [
       {
         path: '/',

@@ -54,12 +54,12 @@ function unmountMicroApp(microApp?: MicroAppType) {
 }
 
 export default function MicroApp(componentProps: Props) {
-  const {
-    masterHistoryType,
-    apps = [],
-    lifeCycles: globalLifeCycles,
-    ...globalSettings
-  } = getMasterOptions() as any;
+  // const {
+  //   masterHistoryType,
+  //   apps = [],
+  //   lifeCycles: globalLifeCycles,
+  //   ...globalSettings
+  // } = getMasterOptions() as any;
 
   const {
     name,
