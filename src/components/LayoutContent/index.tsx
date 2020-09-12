@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 // import { MicroApp } from 'umi';
 // import { LoadingOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 
 import { Spin } from 'antd';
 import MicroApp from '../MicroApp/index';
@@ -16,7 +16,13 @@ const LayoutContent: React.FC<LayoutContentProps> = ({ appName, children }) => {
       appName ? (
         <MicroApp
           name={appName}
-          loadingRenderCb={(d, l) => <ResetSpin spinning={l}>{d}</ResetSpin>}
+          loadingRenderCb={(d, l) => (
+            <Spin spinning={l} style={{ marginTop: 10 }}>
+              {d}
+            </Spin>
+            //   <div className="mlayout-reset-antd">
+            // </div>
+          )}
         />
       ) : (
         children
@@ -27,10 +33,10 @@ const LayoutContent: React.FC<LayoutContentProps> = ({ appName, children }) => {
   return <div style={{ position: 'relative' }}>{microDom}</div>;
 };
 
-const ResetSpin = styled(Spin)`
-  .ant-spin-dot {
-    margin-top: 10px !important;
-  }
-`;
+// const ResetSpin = styled(Spin)`
+//   .ant-spin-dot {
+//     margin-top: 10px !important;
+//   }
+// `;
 
 export default LayoutContent;

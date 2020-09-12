@@ -37,6 +37,7 @@ export default {
   cjs: { type: 'babel', lazy: true },
   disableTypeCheck: true,
   pkgs: [...headPkgs, ...tailPkgs],
+  extraExternals: ['styled-components'],
   extraBabelPlugins: [
     [
       'babel-plugin-import',

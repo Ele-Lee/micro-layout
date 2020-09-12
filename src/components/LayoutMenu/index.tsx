@@ -42,7 +42,7 @@ export default function LayoutMenu({
   const onCollapse = () => setCollapsed(!+collapsed);
 
   return (
-    <ResetSider {...{ width, collapsed, onCollapse }} collapsible>
+    <Sider {...{ width, collapsed, onCollapse }} collapsible>
       {logo && (
         <LogoWrap style={{ height: HeaderHeight }}>
           <Logo>
@@ -51,7 +51,7 @@ export default function LayoutMenu({
           </Logo>
         </LogoWrap>
       )}
-      <ResetMenu
+      <Menu
         mode="inline"
         theme="dark"
         // inlineCollapsed={collapsed}
@@ -60,8 +60,8 @@ export default function LayoutMenu({
         defaultOpenKeys={activeSubMenu ? [activeSubMenu] : undefined}
       >
         {menuItemList(LayoutMenuItem, SubMenu)}
-      </ResetMenu>
-    </ResetSider>
+      </Menu>
+    </Sider>
   );
 }
 
@@ -71,9 +71,9 @@ const css_flexCenter = css`
   align-items: center;
 `;
 
-const ResetSider = styled(Sider)``;
+// const ResetSider = styled(Sider)``;
 
-const ResetMenu = styled(Menu)``;
+// const ResetMenu = styled(Menu)``;
 
 const LayoutMenuItem = styled(Menu.Item)`
   width: 100%;

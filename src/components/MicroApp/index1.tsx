@@ -1,9 +1,11 @@
+// @ts-ignore
+import { getMasterOptions } from '@@/plugin-qiankun/masterOptions';
 import {
   FrameworkConfiguration,
   loadMicroApp,
   MicroApp as MicroAppType,
 } from 'qiankun';
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import concat from 'lodash/concat';
 import mergeWith from 'lodash/mergeWith';
@@ -51,24 +53,13 @@ function unmountMicroApp(microApp?: MicroAppType) {
   }
 }
 
-const my = async () => {
-  // const { getMasterOptions } = await import(
-  //   // @ts-ignore
-  //   '@@/plugin-qiankun/masterOptions'
-  // );
-  return () => ({});
-};
-
 export default function MicroApp(componentProps: Props) {
   const {
+    masterHistoryType,
     apps = [],
-    lifeCycles: globalLifeCycles = {},
+    lifeCycles: globalLifeCycles,
     ...globalSettings
-  } = useMemo<any>(async () => {
-    const isSlave = window !== undefined && window.__POWERED_BY_QIANKUN__;
-    if (!isSlave) return {};
-    return my()();
-  }, []);
+  } = getMasterOptions() as any;
 
   const {
     name,

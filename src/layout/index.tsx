@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 // @ts-ignore
 import { IRouteComponentProps, MainAppModelState } from 'umi';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 import { Layout } from 'antd';
 import LayoutMenu from '../components/LayoutMenu';
 import LayoutContent from '../components/LayoutContent';
+import iconFormatter from '../utils/iconFormatter';
 // @ts-ignore
 import { Link, connect } from 'umi';
 import _omit from 'lodash/omit';
@@ -19,6 +20,9 @@ interface BaseLayoutProps extends IRouteComponentProps {
   menuTitle: string;
   userConfig: any;
 }
+// const Header = styled.header`
+//   background-color: #fff;
+// `;
 
 function BaseLayout({
   children,
@@ -76,7 +80,7 @@ function BaseLayout({
     if (!isMainApp && !isInMain) {
       return React.createElement('div', { children });
     }
-    return apps.length
+    return false
       ? React.createElement(LayoutContent, {
           appName: findNameByPath(menuItemKey, apps),
           children,
@@ -102,7 +106,10 @@ function BaseLayout({
               return routesArr.map(({ name, title, icon, path, children }) => {
                 const menuProps = {
                   key: pathPrefix + (name || path),
-                  icon: icon ? React.createElement(icon) : undefined,
+                  icon:
+                    typeof icon === 'string'
+                      ? React.createElement(iconFormatter(icon))
+                      : undefined,
                   title: title,
                 };
                 menuProps.key = menuProps.key.replace(/\/{2,}/g, '/');
@@ -122,6 +129,7 @@ function BaseLayout({
                 );
               });
             }
+            // return null;
             return renderItemByItem(menuRoutes);
           }}
           onMenuClick={({ key }) => {
@@ -131,7 +139,7 @@ function BaseLayout({
         />
       )}
       <Layout className="site-layout">
-        <Header style={{ height: HeaderHeight }}>头</Header>
+        <header style={{ height: HeaderHeight }}>头</header>
         <Content
           className="site-layout-background"
           style={{
@@ -193,10 +201,6 @@ const __connect = connect
         return BaseComp;
       };
     };
-
-const Header = styled.header`
-  background-color: #fff;
-`;
 
 export default __connect(({ global }: { global: MainAppModelState }) => {
   return { routes: global.routes, apps: global.apps };
