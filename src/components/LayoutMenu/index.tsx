@@ -22,7 +22,8 @@ interface LayoutMenuProps {
 }
 const localKey = '__menu_collapsed__';
 
-const LayoutMenu: React.FC<LayoutMenuProps> = ({
+// const LayoutMenu: React.FC<LayoutMenuProps> = ({
+export default function LayoutMenu({
   menuItemList,
   logo,
   title,
@@ -31,7 +32,7 @@ const LayoutMenu: React.FC<LayoutMenuProps> = ({
   onMenuClick,
   HeaderHeight,
   activeSubMenu,
-}) => {
+}: LayoutMenuProps) {
   const [collapsed, setCollapsed] = useState<boolean>(
     () => window.localStorage.getItem(localKey) == '1',
   );
@@ -62,7 +63,7 @@ const LayoutMenu: React.FC<LayoutMenuProps> = ({
       </ResetMenu>
     </ResetSider>
   );
-};
+}
 
 const css_flexCenter = css`
   display: flex;
@@ -113,4 +114,4 @@ const Logo = styled.section`
   }
 `;
 
-export default LayoutMenu;
+// export default LayoutMenu;

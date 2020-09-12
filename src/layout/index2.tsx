@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 // @ts-ignore
 import { IRouteComponentProps, MainAppModelState } from 'umi';
-import styled from 'styled-components';
-import { Layout } from 'antd';
 import LayoutMenu from '../components/LayoutMenu';
 import LayoutContent from '../components/LayoutContent';
+import { Layout } from 'antd';
 // @ts-ignore
 import { Link, connect } from 'umi';
 import _omit from 'lodash/omit';
@@ -12,13 +11,16 @@ import _omit from 'lodash/omit';
 const { Content } = Layout;
 const HeaderHeight = 60;
 
-interface BaseLayoutProps extends IRouteComponentProps {
-  routes: any[];
-  apps: any[];
-  menuLogo: string;
-  menuTitle: string;
-  userConfig: any;
+export interface BaseLayoutProps {
+  routes?: any[];
+  apps?: any[];
+  menuLogo?: string;
+  menuTitle?: string;
 }
+
+export interface $BaseLayoutProps
+  extends IRouteComponentProps,
+    BaseLayoutProps {}
 
 function BaseLayout({
   children,
@@ -30,9 +32,7 @@ function BaseLayout({
   apps = [],
   menuLogo = 'https://static.guorou.net/guorou-portal-logo.png',
   menuTitle = '果肉运营后台',
-  userConfig,
-}: BaseLayoutProps) {
-  const { routesConfig } = userConfig;
+}: $BaseLayoutProps) {
   const curPathname = location.pathname;
   const [menuItemKey, setMenuItemKey] = useState(curPathname);
   const [activeSubMenu, setActiveSubMenu] = useState<string | undefined>(
@@ -46,47 +46,56 @@ function BaseLayout({
   const isInMain = window !== undefined && !!window.__POWERED_BY_QIANKUN__;
   const isMainApp = window.__isMainApp__;
 
-  const menuRoutes = useMemo(() => {
-    if (!isMainApp) return routesConfig;
-    const mergeIdxs: any[] = [];
-    const _menuRoutes = apps.map((item) => {
-      const routesInfoFromSubIdx = routes.findIndex(
-        (item2) => item2.title === item.title,
-      );
-      let routesInfoFromSub = undefined;
+  const menuRoutes = useMemo(
+    () => {
+      if (!isMainApp) return routesConfig;
+      const mergeIdxs: any[] = [];
+      const _menuRoutes = apps.map(item => {
+        const routesInfoFromSubIdx = routes.findIndex(
+          item2 => item2.title === item.title,
+        );
+        let routesInfoFromSub = undefined;
 
-      if (routesInfoFromSubIdx > -1) {
-        mergeIdxs.push(routesInfoFromSubIdx);
-        routesInfoFromSub = routes[routesInfoFromSubIdx];
-      }
-      return { ...item, ...routesInfoFromSub };
-    });
+        if (routesInfoFromSubIdx > -1) {
+          mergeIdxs.push(routesInfoFromSubIdx);
+          routesInfoFromSub = routes[routesInfoFromSubIdx];
+        }
+        return { ...item, ...routesInfoFromSub };
+      });
 
-    return [
-      ...routes.filter((_, idx) => !mergeIdxs.includes(idx)),
-      ..._menuRoutes,
-    ];
-  }, [apps, routes]);
+      return [
+        ...routes.filter((_, idx) => !mergeIdxs.includes(idx)),
+        ..._menuRoutes,
+      ];
+    },
+    [apps, routes],
+  );
 
-  useEffect(() => {
-    setActiveSubMenu(findActiveSubMenu(curPathname, menuRoutes));
-  }, [curPathname, menuRoutes]);
-
-  const contentWarp = useMemo(() => {
-    if (!isMainApp && !isInMain) {
-      return React.createElement('div', { children });
-    }
-    return apps.length
-      ? React.createElement(LayoutContent, {
-          appName: findNameByPath(menuItemKey, apps),
-          children,
-        })
-      : null;
-  }, [apps.length, menuItemKey]);
+  useEffect(
+    () => {
+      setActiveSubMenu(findActiveSubMenu(curPathname, menuRoutes));
+    },
+    [curPathname, menuRoutes],
+  );
 
   if (isInMain) {
     return children;
   }
+
+  const contentWarp = useMemo(
+    () => {
+      if (!isMainApp && !isInMain) {
+        return React.createElement('div', { children });
+      }
+      return apps.length
+        ? React.createElement(LayoutContent, {
+            appName: findNameByPath(menuItemKey, apps),
+            children,
+          })
+        : null;
+    },
+    [apps.length, menuItemKey],
+  );
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -117,7 +126,7 @@ function BaseLayout({
                 return (
                   <LayoutMenuItem {...menuProps}>
                     {title}
-                    <Link to={menuProps.key}></Link>
+                    <Link to={menuProps.key} />
                   </LayoutMenuItem>
                 );
               });
@@ -131,13 +140,14 @@ function BaseLayout({
         />
       )}
       <Layout className="site-layout">
-        <Header style={{ height: HeaderHeight }}>头</Header>
+        <header className="b-c_fff" style={{ height: HeaderHeight }}>
+          头
+        </header>
         <Content
-          className="site-layout-background"
+          className="site-layout-background b-c_fff"
           style={{
             margin: 16,
             height: '100%',
-            backgroundColor: '#fff',
           }}
         >
           {contentWarp}
@@ -152,7 +162,7 @@ function findNameByPath($path: string, $apps: any[]) {
   if (!appNameRegRes) console.error('解析子应用名字出错');
   if (appNameRegRes) {
     const appName = appNameRegRes[1];
-    const findRes = $apps.find((item) => item.name === appName);
+    const findRes = $apps.find(item => item.name === appName);
     if (findRes) {
       return findRes.name;
     }
@@ -173,7 +183,7 @@ function findActiveSubMenu(
 
     if (
       Array.isArray(children) &&
-      children.some((item) => item.path === pathnameRegRes[1])
+      children.some(item => item.path === pathnameRegRes[1])
     ) {
       activeSubMenu = name ? '/' + name : path;
       break;
@@ -193,10 +203,6 @@ const __connect = connect
         return BaseComp;
       };
     };
-
-const Header = styled.header`
-  background-color: #fff;
-`;
 
 export default __connect(({ global }: { global: MainAppModelState }) => {
   return { routes: global.routes, apps: global.apps };

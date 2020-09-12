@@ -14,7 +14,9 @@ interface LayoutConfig {
   layoutComponent?: Record<string, string>; // 自定义主题
 }
 
-const DIR_NAME = 'plugin-layout';
+const DIR_NAME = 'elelee-layout';
+
+const CONFIG_KEY = 'mlayout';
 
 export interface MenuDataItem {
   children?: MenuDataItem[];
@@ -29,16 +31,16 @@ export interface MenuDataItem {
   [key: string]: any;
 }
 
-function haveProLayout() {
-  try {
-    require.resolve('@ant-design/pro-layout');
-    return true;
-  } catch (error) {
-    console.log(error);
-    console.error('@umijs/plugin-layout 需要安装 ProLayout 才可运行');
-  }
-  return false;
-}
+// function haveProLayout() {
+//   try {
+//     require.resolve('@ant-design/pro-layout');
+//     return true;
+//   } catch (error) {
+//     console.log(error);
+//     console.error('@umijs/plugin-layout 需要安装 ProLayout 才可运行');
+//   }
+//   return false;
+// }
 
 function toHump(name: string) {
   return name.replace(/\-(\w)/g, function (all, letter) {
@@ -56,16 +58,16 @@ function formatter(data: MenuDataItem[]): string[] {
     if (item.menu) {
       item = { ...item, ...item.menu };
     }
-    if (item.icon) {
-      const { icon } = item;
-      const v4IconName = toHump(icon.replace(icon[0], icon[0].toUpperCase()));
-      if (allIcons[icon]) {
-        icons.push(icon);
-      }
-      if (allIcons[`${v4IconName}Outlined`]) {
-        icons.push(`${v4IconName}Outlined`);
-      }
-    }
+    // if (item.icon) {
+    //   const { icon } = item;
+    //   const v4IconName = toHump(icon.replace(icon[0], icon[0].toUpperCase()));
+    //   if (allIcons[icon]) {
+    //     icons.push(icon);
+    //   }
+    //   if (allIcons[`${v4IconName}Outlined`]) {
+    //     icons.push(`${v4IconName}Outlined`);
+    //   }
+    // }
     const items = item.routes || item.children;
     if (items) {
       icons = icons.concat(formatter(items));
@@ -76,7 +78,6 @@ function formatter(data: MenuDataItem[]): string[] {
 }
 
 export default (api: IApi) => {
-  console.log('%celelee test:', 'background:#000;color:#fff', 1);
   api.describe({
     key: 'mlayout',
     config: {
@@ -96,7 +97,7 @@ export default (api: IApi) => {
 
   let layoutOpts: LayoutConfig = {};
 
-  api.addRuntimePluginKey(() => ['layout']);
+  api.addRuntimePluginKey(() => [CONFIG_KEY]);
 
   api.onGenerateFiles(() => {
     // apply default options
@@ -106,18 +107,13 @@ export default (api: IApi) => {
       theme: 'PRO',
       locale: false,
       showBreadcrumb: true,
-      ...(api.config.layout || {}),
+      ...(api.config[CONFIG_KEY] || {}),
     };
 
     // allow custom theme
     let layoutComponent = {
       // 如果 ProLayout 没有安装会提供一个报错和一个空的 layout 组件
-      PRO: utils.winPath(
-        join(
-          __dirname,
-          haveProLayout() ? './layout/index.js' : './layout/blankLayout.js',
-        ),
-      ),
+      PRO: utils.winPath(join(__dirname, './layout/index.js')),
     };
     if (layoutOpts.layoutComponent) {
       layoutComponent = Object.assign(
@@ -126,9 +122,8 @@ export default (api: IApi) => {
       );
     }
 
-    const theme = (layoutOpts.theme && layoutOpts.theme.toUpperCase()) || 'PRO';
-    const currentLayoutComponentPath =
-      layoutComponent[theme] || layoutComponent['PRO'];
+    // const theme = (layoutOpts.theme && layoutOpts.theme.toUpperCase()) || 'PRO';
+    const currentLayoutComponentPath = layoutComponent['PRO'];
 
     api.writeTmpFile({
       path: join(DIR_NAME, 'Layout.tsx'),
@@ -157,12 +152,6 @@ export default (api: IApi) => {
     });
   });
   api.modifyRoutes((routes) => {
-    console.log(
-      '%celelee test:',
-      'background:#000;color:#fff',
-      2,
-      join(api.paths.absTmpPath || '', DIR_NAME, 'Layout.tsx'),
-    );
     return [
       {
         path: '/',
@@ -174,5 +163,5 @@ export default (api: IApi) => {
     ];
   });
 
-  api.addRuntimePlugin(() => ['@@/plugin-layout/runtime.tsx']);
+  api.addRuntimePlugin(() => ['@@/' + DIR_NAME + '/runtime.tsx']);
 };
