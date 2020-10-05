@@ -132,10 +132,12 @@ export default (api: IApi) => {
 
     // 生效临时的 icon 文件
     const { userConfig } = api;
-    const icons = formatter(userConfig.routes);
+    // TODO 这里需要补充
+    const icons = formatter(userConfig.menusConfig);
     let iconsString = icons.map(
       (iconName) => `import ${iconName} from '@ant-design/icons/${iconName}'`,
     );
+
     api.writeTmpFile({
       path: join(DIR_NAME, 'icons.ts'),
       content: `

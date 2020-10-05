@@ -16,6 +16,10 @@ export default function formatter(iconName: string): Antd4Icon {
   return (allIcons[trueIconName] as unknown) as Antd4Icon;
 }
 
+/**
+ *
+ * @param name {string}
+ */
 function toHump(name: string) {
   const _name = name.replace(name[0], name[0].toUpperCase());
   return _name.replace(/\-(\w)/g, function (all, letter) {

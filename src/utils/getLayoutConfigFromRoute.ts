@@ -25,10 +25,9 @@ function formatter(
   LayoutConfig: LayoutConfig = {},
 ): LayoutConfig {
   routes
-    .filter(item => item && !item.path?.startsWith('http'))
-    .map(route => {
+    .filter((item) => item && !item.path?.startsWith('http'))
+    .map((route) => {
       const { layout, indexRoute, path = '', routes, unaccessible } = route;
-
       // 继承父路由的 layout 配置
       let hideNav = parentRouteLayoutConfig.hideNav;
       let hideMenu = parentRouteLayoutConfig.hideMenu;
@@ -53,7 +52,9 @@ function formatter(
       }
 
       // 拼接 path
-      const absolutePath = path.startsWith('/') ? path : `${base}${base === '/' ? '' : '/'}${path}`;
+      const absolutePath = path.startsWith('/')
+        ? path
+        : `${base}${base === '/' ? '' : '/'}${path}`;
 
       LayoutConfig[`${prefix}${absolutePath}`] = {
         hideMenu,

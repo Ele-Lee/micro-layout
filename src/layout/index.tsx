@@ -1,24 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 // @ts-ignore
-import { IRouteComponentProps, MainAppModelState } from 'umi';
-// import styled from 'styled-components';
+import { IRouteComponentProps, MainAppModelState, Link, connect } from 'umi';
 import { Layout } from 'antd';
+import _omit from 'lodash/omit';
 import LayoutMenu from '../components/LayoutMenu';
 import LayoutContent from '../components/LayoutContent';
 import iconFormatter from '../utils/iconFormatter';
-// @ts-ignore
-import { Link, connect } from 'umi';
-import _omit from 'lodash/omit';
+import { routesDelivery } from '../utils/microInit';
+import { AppOption, MenuConfig } from '../typings/typing';
 
 const { Content } = Layout;
 const HeaderHeight = 60;
 
 interface BaseLayoutProps extends IRouteComponentProps {
-  routes: any[];
-  apps: any[];
+  routes: MenuConfig[];
+  apps: AppOption[];
   menuLogo: string;
   menuTitle: string;
-  userConfig: any;
+  userConfig: {
+    menuConfig: MenuConfig[];
+    subname: string;
+  };
 }
 // const Header = styled.header`
 //   background-color: #fff;
@@ -27,16 +29,16 @@ interface BaseLayoutProps extends IRouteComponentProps {
 function BaseLayout({
   children,
   location,
-  route,
-  history,
-  match,
+  // route,
+  // history,
+  // match,
   routes,
   apps = [],
   menuLogo = 'https://static.guorou.net/guorou-portal-logo.png',
-  menuTitle = '果肉运营后台',
+  menuTitle = '果肉运营后台基座',
   userConfig,
 }: BaseLayoutProps) {
-  const { routesConfig } = userConfig;
+  const { menuConfig, subname } = userConfig;
   const curPathname = location.pathname;
   const [menuItemKey, setMenuItemKey] = useState(curPathname);
   const [activeSubMenu, setActiveSubMenu] = useState<string | undefined>(
@@ -51,36 +53,42 @@ function BaseLayout({
   const isMainApp = window.__isMainApp__;
 
   const menuRoutes = useMemo(() => {
-    if (!isMainApp) return routesConfig;
-    const mergeIdxs: any[] = [];
-    const _menuRoutes = apps.map((item) => {
-      const routesInfoFromSubIdx = routes.findIndex(
-        (item2) => item2.title === item.title,
-      );
-      let routesInfoFromSub = undefined;
+    if (!isMainApp) return menuConfig;
+    return routes;
+    // const mergeIdxs: any[] = [];
+    // const _menuRoutes = apps.map((item) => {
+    //   const routesInfoFromSubIdx = routes.findIndex(
+    //     (item2) => item2.title === item.title,
+    //   );
+    //   let routesInfoFromSub = undefined;
 
-      if (routesInfoFromSubIdx > -1) {
-        mergeIdxs.push(routesInfoFromSubIdx);
-        routesInfoFromSub = routes[routesInfoFromSubIdx];
-      }
-      return { ...item, ...routesInfoFromSub };
-    });
-
-    return [
-      ...routes.filter((_, idx) => !mergeIdxs.includes(idx)),
-      ..._menuRoutes,
-    ];
-  }, [apps, routes]);
+    //   if (routesInfoFromSubIdx > -1) {
+    //     mergeIdxs.push(routesInfoFromSubIdx);
+    //     routesInfoFromSub = routes[routesInfoFromSubIdx];
+    //   }
+    //   return { ...item, ...routesInfoFromSub };
+    // });
+    // return [
+    //   ...routes.filter((_, idx) => !mergeIdxs.includes(idx)),
+    //   ..._menuRoutes,
+    // ];
+  }, [routes]);
 
   useEffect(() => {
     setActiveSubMenu(findActiveSubMenu(curPathname, menuRoutes));
   }, [curPathname, menuRoutes]);
 
+  useEffect(() => {
+    if (isInMain) {
+      routesDelivery(subname, menuConfig);
+    }
+  }, []);
+
   const contentWarp = useMemo(() => {
     if (!isMainApp && !isInMain) {
       return React.createElement('div', { children });
     }
-    return false
+    return apps.length
       ? React.createElement(LayoutContent, {
           appName: findNameByPath(menuItemKey, apps),
           children,
@@ -129,7 +137,6 @@ function BaseLayout({
                 );
               });
             }
-            // return null;
             return renderItemByItem(menuRoutes);
           }}
           onMenuClick={({ key }) => {
@@ -173,24 +180,28 @@ function findActiveSubMenu(
   $routesConfig: any[],
 ): string | undefined {
   if ($pathname === '/') return $pathname;
+
   let activeSubMenu: string | undefined = undefined;
-  const pathnameRegRes = $pathname.match(/(\/[\w-]+)$/);
-  if (!pathnameRegRes) throw '解析路由地址出错: ' + $pathname;
+  // const pathnameRegRes = $pathname.match(/(\/[\w-]+)$/);
+  // if (!pathnameRegRes) {
+  //   console.error('解析路由地址出错: ' + $pathname);
+  //   location.href = '/';
+  //   return;
+  // }
   for (const iterator of $routesConfig) {
     const { children, name, path, title } = iterator;
 
+    activeSubMenu = name ? '/' + name : path;
     if (
       Array.isArray(children) &&
-      children.some((item) => item.path === pathnameRegRes[1])
+      children.some((item) => item.path === activeSubMenu)
     ) {
-      activeSubMenu = name ? '/' + name : path;
       break;
     }
     if ($pathname === `/${name}` || $pathname === path) {
       activeSubMenu = $pathname;
     }
   }
-
   return activeSubMenu;
 }
 
@@ -202,6 +213,11 @@ const __connect = connect
       };
     };
 
-export default __connect(({ global }: { global: MainAppModelState }) => {
-  return { routes: global.routes, apps: global.apps };
-})(BaseLayout);
+export default __connect(
+  ({ microLayout }: { microLayout: MainAppModelState }) => {
+    if (microLayout) {
+      return { routes: microLayout.routes, apps: microLayout.apps };
+    }
+    return {};
+  },
+)(BaseLayout);

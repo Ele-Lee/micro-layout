@@ -26,11 +26,12 @@
     "umi": "^3.2.16"
   },
   "dependencies": {
-    "@umijs/route-utils": "1.0.31",
     "@ant-design/pro-layout": "^4.11.3",
+    "@grfe/micro-store": "^0.0.1-beta2",
+    "@umijs/route-utils": "1.0.31",
+    "antd": "4.6.3",
     "path-to-regexp": "1.x",
     "styled-components": "^5.1.1",
-    "antd": "4.6.3",
     "umi": "^3.2.14"
   },
   "devDependencies": {
