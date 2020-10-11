@@ -8,12 +8,13 @@ import LayoutContent from '../components/LayoutContent';
 import iconFormatter from '../utils/iconFormatter';
 import { routesDelivery } from '../utils/microInit';
 import { AppOption, MenuConfig } from '../typings/typing';
+import PublicHeader from '../components/PublicHeader';
 
 const { Content } = Layout;
-const HeaderHeight = 60;
+const headerHeight = 60;
 
 interface BaseLayoutProps extends IRouteComponentProps {
-  routes: MenuConfig[];
+  menus: MenuConfig[];
   apps: AppOption[];
   menuLogo: string;
   menuTitle: string;
@@ -32,7 +33,7 @@ function BaseLayout({
   // route,
   // history,
   // match,
-  routes,
+  menus,
   apps = [],
   menuLogo = 'https://static.guorou.net/guorou-portal-logo.png',
   menuTitle = '果肉运营后台基座',
@@ -52,27 +53,33 @@ function BaseLayout({
   const isInMain = window !== undefined && !!window.__POWERED_BY_QIANKUN__;
   const isMainApp = window.__isMainApp__;
 
-  const menuRoutes = useMemo(() => {
-    if (!isMainApp) return menuConfig;
-    return routes;
+  const [menuRoutes, setMenuRoutes] = useState<MenuConfig[]>([]);
+  useEffect(() => {
+    if (!isMainApp) {
+      setMenuRoutes(menuConfig);
+      return;
+    }
+    if (menus) {
+      setMenuRoutes(menus);
+    }
     // const mergeIdxs: any[] = [];
     // const _menuRoutes = apps.map((item) => {
-    //   const routesInfoFromSubIdx = routes.findIndex(
+    //   const routesInfoFromSubIdx = menus.findIndex(
     //     (item2) => item2.title === item.title,
     //   );
     //   let routesInfoFromSub = undefined;
 
     //   if (routesInfoFromSubIdx > -1) {
     //     mergeIdxs.push(routesInfoFromSubIdx);
-    //     routesInfoFromSub = routes[routesInfoFromSubIdx];
+    //     routesInfoFromSub = menus[routesInfoFromSubIdx];
     //   }
     //   return { ...item, ...routesInfoFromSub };
     // });
     // return [
-    //   ...routes.filter((_, idx) => !mergeIdxs.includes(idx)),
+    //   ...menus.filter((_, idx) => !mergeIdxs.includes(idx)),
     //   ..._menuRoutes,
     // ];
-  }, [routes]);
+  }, [menus]);
 
   useEffect(() => {
     setActiveSubMenu(findActiveSubMenu(curPathname, menuRoutes));
@@ -107,7 +114,7 @@ function BaseLayout({
           logo={menuLogo}
           title={menuTitle}
           selectedKey={menuItemKey}
-          HeaderHeight={HeaderHeight}
+          headerHeight={headerHeight}
           activeSubMenu={activeSubMenu}
           menuItemList={(LayoutMenuItem, SubMenu) => {
             function renderItemByItem(routesArr: any[], pathPrefix = '/') {
@@ -146,7 +153,9 @@ function BaseLayout({
         />
       )}
       <Layout className="site-layout">
-        <header style={{ height: HeaderHeight }}>头</header>
+        <header style={{ height: headerHeight }}>
+          <PublicHeader />
+        </header>
         <Content
           className="site-layout-background"
           style={{
@@ -216,8 +225,9 @@ const __connect = connect
 export default __connect(
   ({ microLayout }: { microLayout: MainAppModelState }) => {
     if (microLayout) {
-      return { routes: microLayout.routes, apps: microLayout.apps };
+      return { menus: microLayout.menus, apps: microLayout.apps };
     }
+    console.error('no microLayout in main app dva');
     return {};
   },
 )(BaseLayout);

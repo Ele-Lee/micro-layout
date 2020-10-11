@@ -17,7 +17,7 @@ interface LayoutMenuProps {
   selectedKey: string;
   activeSubMenu?: string;
   onMenuClick: MenuClickEventHandler;
-  HeaderHeight: number;
+  headerHeight: number;
   width?: number;
 }
 const localKey = '__menu_collapsed__';
@@ -30,7 +30,7 @@ export default function LayoutMenu({
   width = 160,
   selectedKey,
   onMenuClick,
-  HeaderHeight,
+  headerHeight,
   activeSubMenu,
 }: LayoutMenuProps) {
   const [collapsed, setCollapsed] = useState<boolean>(
@@ -44,7 +44,7 @@ export default function LayoutMenu({
   return (
     <Sider {...{ width, collapsed, onCollapse }} collapsible>
       {logo && (
-        <LogoWrap style={{ height: HeaderHeight }}>
+        <LogoWrap style={{ height: headerHeight }}>
           <Logo>
             <img src={logo} alt="" />
             {!collapsed && <span>{title}</span>}

@@ -46,6 +46,6 @@
     "father-build": "^1.8.0"
   },
   "publishConfig": {
-    "registry": "http://192.168.30.56:9003/nexus/content/repositories/npm-internal/"
+    "registry": "http://r.npm.guorou.net"
   }
 }
